@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Витрина NFT-подарков — каталог Telegram</title>
+<!-- Для Telegram: на своём хостинге этот скрипт подключает Web App SDK -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+<style>
+:root{--bg:#000;--fg:#fff;--mut:#8b8b95;--card:#121215;--line:#34343b;--acc:#3b9cff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme=dark]){--bg:#f4f4f7;--fg:#111;--mut:#6d6d78;--card:#fff;--line:#d3d3db;--acc:#1a73e8}}
+:root[data-theme=light]{--bg:#f4f4f7;--fg:#111;--mut:#6d6d78;--card:#fff;--line:#d3d3db;--acc:#1a73e8}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:16px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+#app{height:100%;display:flex;flex-direction:column}
+button{font:inherit;color:inherit;cursor:pointer}
+.top{flex:none;display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:2px solid var(--fg)}
+.av{flex:none;width:42px;height:42px;padding:0;border-radius:50%;border:2px solid var(--fg);background:var(--card) center/cover;font-size:20px;font-weight:600;display:grid;place-items:center}
+.tabs{flex:1;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;padding:10px 16px;border-radius:12px;border:2px solid var(--line);background:none;font-weight:600;font-size:15px}
+.tab.on{border-color:var(--fg)}
+.tab u{text-decoration:none;color:var(--mut);margin-left:8px}
+.main{flex:1;min-height:0;overflow-y:auto}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px 12px}
+.cd{position:relative;overflow:hidden;container-type:inline-size;aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:14px}
+.cell{position:relative;z-index:0;border:2px solid var(--fg);border-radius:16px;background:var(--card);cursor:pointer}
+.cell.f{border-color:var(--line)}
+.plus{font-size:38cqw;font-weight:200;line-height:1}
+.bg{pointer-events:none;position:absolute;inset:0}
+.pat{position:absolute;inset:-25%;font-size:11cqw;line-height:1.9;letter-spacing:.35em;text-align:center;word-break:break-all;overflow:hidden;opacity:.25;transform:rotate(-14deg);pointer-events:none}
+.em{position:relative;font-size:46cqw;font-style:normal;font-weight:400;line-height:1}
+.num,.numin{position:absolute;z-index:5;bottom:6px;left:50%;transform:translateX(-50%);font:700 13px system-ui}
+.num{padding:3px 9px;border-radius:10px;background:rgba(0,0,0,.5);color:#fff;white-space:nowrap}
+.numin{width:76%;padding:2px 4px;text-align:center;font-size:16px;border-radius:10px;border:2px solid var(--acc);background:#000;color:#fff;outline:none}
+.bar{flex:none;display:flex;gap:12px;padding:12px;border-top:2px solid var(--fg)}
+.btn{flex:1;padding:14px;border-radius:14px;border:2px solid var(--fg);background:none;font-weight:700;font-size:16px}
+.btn.p{background:var(--fg);color:var(--bg)}
+.btn.sm{flex:none;padding:11px 16px;font-size:15px}
+.pv{flex:1;display:flex;justify-content:center}
+.pv .cd{width:46px}
+.chips{flex:none;display:flex;gap:8px;padding:14px 12px;overflow-x:auto}
+.chip{flex:none;padding:11px 18px;border-radius:12px;border:2px solid var(--line);background:none;font-weight:600;font-size:15px}
+.chip.on{border-color:var(--fg);background:var(--fg);color:var(--bg)}
+.panel{flex:1;min-height:0;margin:0 12px 12px;border:2px solid var(--fg);border-radius:20px;display:flex;flex-direction:column}
+.ph{flex:none;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:10px 12px 4px}
+.ph input{flex:1;min-width:0;padding:9px 12px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--fg);font:16px system-ui;outline:none}
+.ph input:focus{border-color:var(--fg)}
+.ic{background:none;border:0;padding:6px;display:grid;place-items:center}
+.items{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:6px 12px 12px;align-content:start}
+.t{position:relative;z-index:1;background:none;border:2px solid transparent;border-radius:16px;padding:4px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:500}
+.t.on{border-color:var(--acc)}
+.t .cd{width:100%}
+.t span{text-align:center;line-height:1.2;overflow-wrap:anywhere}
+.hint{grid-column:1/-1;margin:36px 0;text-align:center;color:var(--mut)}
+#toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:10px 18px;border-radius:20px;background:var(--fg);color:var(--bg);font-weight:600;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+#toast.on{opacity:1}
+
+/* Original Telegram Lottie animations + clearly visible symbol pattern */
+.lottie-wrap{position:relative;width:100%;height:100%;min-width:0;min-height:0;display:block}
+.lottie-wrap>.static-fallback{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .2s}
+.lottie-wrap>.lottie{position:absolute;inset:0;width:100%;height:100%;display:grid;place-items:center}
+.lottie-wrap>.lottie svg{width:100%!important;height:100%!important;overflow:visible}
+.lottie-wrap.live>.static-fallback{opacity:0}
+.em .lottie-wrap{width:100%;height:100%}
+.t .lottie-wrap{width:100%;height:100%}
+.pat{background-repeat:repeat;background-position:center;background-size:27% 27%;opacity:.82;mix-blend-mode:screen;filter:drop-shadow(0 0 3px #fff9);animation:patternDrift 18s ease-in-out infinite}
+.pat-center{position:absolute;z-index:2;inset:0;display:grid;place-items:center;pointer-events:none;opacity:.9}
+.pat-center img{width:30%;height:30%;object-fit:contain;filter:drop-shadow(0 0 8px #fff);animation:symbolPulse 3s ease-in-out infinite}
+.backdrop-sheen{position:absolute;inset:0;background:linear-gradient(135deg,#ffffff30,transparent 42%,#0004);pointer-events:none}
+/* Assets, visible backdrops/patterns, and motion */
+.cd{isolation:isolate;transform:translateZ(0)}
+.bg{pointer-events:none;overflow:hidden;transition:background .35s ease;z-index:0}
+.em{pointer-events:none;display:grid;place-items:center;width:82%;height:82%;font-size:0;z-index:3;transform-origin:50% 58%}
+.em img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 8px 10px #0008);will-change:transform,filter}
+.pat{z-index:1;inset:-12%;font-size:11cqw;line-height:1.9;letter-spacing:.25em;opacity:.62;transform:rotate(-18deg);mix-blend-mode:screen;mask-image:radial-gradient(ellipse,black 30%,transparent 95%)}
+.pat{opacity:.78}
+.t .cd{pointer-events:none;width:100%;overflow:hidden}
+.t .cd>img{width:82%;height:82%;object-fit:contain;filter:drop-shadow(0 4px 5px #0008);position:relative;z-index:2}
+.t .cd .em{font-size:0!important}
+.t .cd .em img{width:100%;height:100%;object-fit:contain}
+.t[data-kind="backdrop"] .cd{border-radius:12px;border:1px solid #ffffff30}
+.t[data-kind="backdrop"] .cd:after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,#ffffff30,transparent 45%,#0003);pointer-events:none}
+.t[data-kind="symbol"] .cd{background:radial-gradient(circle,#383b51,#11121b);border:1px solid #ffffff20}
+.t[data-kind="symbol"] .cd img{width:88%;height:88%;object-fit:contain;filter:drop-shadow(0 0 5px #fff7);animation:symbolPulse 2.8s ease-in-out infinite}
+.t:nth-child(6n+1) .cd>img,.t:nth-child(6n+1) .em{animation-name:thumbBob}
+.t:nth-child(6n+2) .cd>img,.t:nth-child(6n+2) .em{animation-name:thumbTilt}
+.t:nth-child(6n+3) .cd>img,.t:nth-child(6n+3) .em{animation-name:thumbBob}
+.t:nth-child(6n+4) .cd>img,.t:nth-child(6n+4) .em{animation-name:thumbPulse}
+.t:nth-child(6n+5) .cd>img,.t:nth-child(6n+5) .em{animation-name:thumbTilt}
+.t:nth-child(6n) .cd>img,.t:nth-child(6n) .em{animation-name:thumbBob}
+@media(prefers-reduced-motion:reduce){.em,.em img,.pat img,.t .cd>img,.t[data-kind="symbol"] .cd img{animation:none!important}}
+.hint button{margin-top:12px}
+@media(min-width:600px){.grid{grid-template-columns:repeat(4,1fr)}.items{grid-template-columns:repeat(4,1fr)}}
+
+/* Desktop layout: preserve the original interface, only make it comfortable on PC */
+@media (min-width: 900px) {
+  html, body { min-height: 100%; }
+  body { min-height: 100vh; }
+  #app { min-height: 100vh; height: 100vh; }
+  .top { padding: 12px 20px; gap: 14px; }
+  .tabs { overflow-x: auto; }
+  .main { width: 100%; }
+  .grid {
+    width: min(100%, 650px);
+    margin: 0 auto;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    padding: 12px;
+  }
+  .bar { padding: 14px 20px; }
+  .btn { max-width: 420px; }
+  .chips { padding: 16px 20px; }
+  .panel { margin: 0 20px 16px; }
+  .items {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    padding: 10px 16px 16px;
+  }
+  .ph { padding: 12px 16px 6px; }
+  .hint { padding-left: 20px; padding-right: 20px; }
+}
+
+
+/* Hover-triggered, single-play motion on desktop */
+@media (min-width: 900px) {
+  .cell .em, .cell .em img, .cell .pat, .cell .pat-center img,
+  .t .cd>img, .t .cd .em, .t[data-kind="symbol"] .cd img {
+    
+    
+    
+  }
+  .cell:hover .em, .cell:hover .em img, .cell:hover .pat, .cell:hover .pat-center img,
+  .t:hover .cd>img, .t:hover .cd .em, .t:hover .cd .em img,
+  .t[data-kind="symbol"]:hover .cd img {
+    
+  }
+}
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+<script>
+const API='https://api.changes.tg';
+const T=window.Telegram&&Telegram.WebApp,U=T&&T.initDataUnsafe&&T.initDataUnsafe.user;
+if(T){try{T.ready();T.expand();T.setHeaderColor('#000000');T.setBackgroundColor('#000000')}catch(e){}document.documentElement.dataset.theme='dark'}
+const $=s=>document.querySelector(s),app=$('#app'),K='nftshowcase-live-v4';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const blank=()=>Array(9).fill(null),clone=x=>JSON.parse(JSON.stringify(x));
+let L={};try{L=JSON.parse(localStorage.getItem(K))||{}}catch(e){}
+const S={projects:L.projects||[],cnt:L.cnt||0,cur:null,cells:blank(),v:'grid',t:0,q:'',sr:false,d:null,cell:0,dl:null,G:[],attrs:{models:[],backdrops:[],symbols:[]},cache:{},loading:false};
+const TABS=['нфт','модель','фон','узор'],KEYS=['g','m','b','p'],KINDS=['models','models','backdrops','symbols'];
+const toast=m=>{const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>e.classList.remove('on'),1900)};
+const persist=()=>{try{localStorage.setItem(K,JSON.stringify({projects:S.projects,cnt:S.cnt}))}catch(e){}};
+const slug=s=>String(s||'').trim().replace(/['’]/g,'').replace(/[^a-zA-Z0-9]+/g,'').toLowerCase();
+const getName=x=>typeof x==='string'?x:(x.name||x.title||x.gift||x.slug||'Gift');
+async function api(path){const r=await fetch(API+path);if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
+function arr(x,key){return Array.isArray(x)?x:(x[key]||x.items||x.attributes||[])}
+function attrName(x){return x?.name||x?.model||x?.backdrop||x?.symbol||x?.title||'Вариант'}
+function giftObj(name){return S.G.find(x=>x.name===name)||{name,slug:slug(name),emoji:'🎁'}}
+function apiName(s){return encodeURIComponent(String(s??'').trim())}
+function assetGiftId(g){const x=giftObj(g);return x.raw?.id??x.raw?.giftId??x.raw?.gift_id??x.raw?.slug??x.name}
+function imageUrl(path){return API+path}
+
+// Telegram backdrop attributes can use several field names depending on API version.
+// Always return valid CSS so a missing/unknown backdrop never breaks rendering.
+function backdropStyle(backdrop){
+ if(!backdrop || typeof backdrop!=='object'){
+  return 'background:linear-gradient(135deg,#20212a 0%,#111217 55%,#292b36 100%)';
+ }
+ const raw = backdrop.colors || backdrop.color || backdrop;
+ const pickColor = value => {
+  if(value==null) return null;
+  if(typeof value==='number'){
+   const n = Math.max(0, Math.min(0xffffff, value));
+   return '#'+n.toString(16).padStart(6,'0');
+  }
+  if(typeof value==='string'){
+   const s=value.trim();
+   if(/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(s)) return s;
+   if(/^[0-9a-f]{6}$/i.test(s)) return '#'+s;
+   if(/^\d+$/.test(s)) return pickColor(Number(s));
+  }
+  return null;
+ };
+ const colors=[];
+ const candidates=[
+  raw.center_color, raw.centerColor, raw.center,
+  raw.edge_color, raw.edgeColor, raw.edge,
+  raw.top_color, raw.topColor, raw.bottom_color, raw.bottomColor,
+  backdrop.center_color, backdrop.centerColor, backdrop.center,
+  backdrop.edge_color, backdrop.edgeColor, backdrop.edge,
+  backdrop.color
+ ];
+ for(const c of candidates){
+  const color=pickColor(c);
+  if(color && !colors.includes(color)) colors.push(color);
+ }
+ if(!colors.length){
+  const single=pickColor(backdrop.hex||backdrop.background_color||backdrop.backgroundColor);
+  if(single) colors.push(single);
+ }
+ if(colors.length===1) return `background:${colors[0]}`;
+ if(colors.length>=2) return `background:radial-gradient(circle at 30% 25%,${colors[0]},${colors[1]})`;
+ return 'background:linear-gradient(135deg,#20212a 0%,#111217 55%,#292b36 100%)';
+}
+function currentAsset(c,kind='models'){
+ if(!c)return '';
+ const a=S.cache[c.g]?.[kind]?.[kind==='models'?c.m:kind==='symbols'?c.p:c.b];
+ if(!a)return '';
+ const n=attrName(a);
+ if(kind==='models')return imageUrl(`/model/${apiName(c.g)}/${apiName(n)}.png?size=256`);
+ if(kind==='symbols')return imageUrl(`/symbol/${apiName(c.g)}/${apiName(n)}.png?size=256`);
+ return '';
+}
+function animationUrl(c,kind='model'){
+ if(!c?.g)return '';
+ if(kind==='original')return imageUrl(`/original/${apiName(assetGiftId(c.g))}.json`);
+ const m=S.cache[c.g]?.models?.[c.m];
+ if(!m)return '';
+ return imageUrl(`/model/${apiName(c.g)}/${apiName(attrName(m))}.json`);
+}
+function originalUrl(gift){
+ return imageUrl(`/original/${apiName(assetGiftId(gift?.name||gift))}.json`);
+}
+function card(c){
+ if(!c)return '';
+ const g=giftObj(c.g),b=S.cache[c.g]?.backdrops?.[c.b],m=S.cache[c.g]?.models?.[c.m],p=S.cache[c.g]?.symbols?.[c.p];
+ const bgStyle=backdropStyle(b),img=currentAsset(c,'models'),sym=currentAsset(c,'symbols');
+ const anim=animationUrl(c,'model');
+ const fallback=`<span class="fallback-emoji">${esc(g.emoji||'🎁')}</span>`;
+ const modelVisual=anim
+   ? `<div class="lottie-wrap"><img class="static-fallback" src="${img}" alt="${esc(attrName(m)||g.name)}" onerror="this.style.opacity=0"><div class="lottie" data-lottie="${esc(anim)}"></div></div>`
+   : (img?`<img src="${img}" alt="${esc(attrName(m)||g.name)}" onerror="this.outerHTML='<span class=\\'fallback-emoji\\'>🎁</span>'">`:fallback);
+ const pattern=sym&&p
+   ? `<div class="pat" aria-label="${esc(attrName(p))}" style="background-image:url('${esc(sym)}')"></div><div class="pat-center"><img src="${esc(sym)}" alt="${esc(attrName(p))}" onerror="this.parentNode.style.display='none'"></div>`
+   : '';
+ return `<div class="bg" style="${bgStyle}"></div>${pattern}<b class="em">${modelVisual}</b>`;
+}
+function avatar(back=false){return `<button class="av" ${back?'data-a="back"':''}>${back?'‹':U&&U.photo_url?'':U&&U.first_name?esc(U.first_name[0]):'✦'}</button>`}
+function grid(){
+ const tabs=S.projects.map((p,i)=>{const on=S.cur===p.id;return `<button class="tab${on?' on':''}" data-a="tab" data-i="${i}">${esc(p.name)}${on?`<u data-a="del" data-i="${i}">${S.dl===p.id?'удалить?':'×'}</u>`:''}</button>`}).join('')+`<button class="tab${S.cur==null?' on':''}" data-a="new">+</button>`;
+ const cells=S.cells.map((c,i)=>`<div class="cd cell${c?' f':''}" data-a="cell" data-i="${i}">${c?card(c)+`<span class="num" data-a="num" data-i="${i}">#${esc(c.n||'1')}</span>`:'<span class="plus">+</span>'}</div>`).join('');
+ return `<div class="top">${avatar()}<div class="tabs">${tabs}</div></div><div class="main"><div class="grid">${cells}</div><div class="hint" style="padding:0 14px 14px">Каталог: ${S.G.length?S.G.length+' коллекций':'загрузка…'} · Нажми на ячейку, чтобы выбрать подарок и атрибуты.</div></div><div class="bar"><button class="btn" data-a="add">добавить</button><button class="btn p" data-a="save">сохранить</button></div>`;
+}
+const pv=()=>S.d?`<div class="cd">${card(S.d)}</div>`:'';
+function items(){
+ const d=S.d,t=S.t,q=S.q.trim().toLowerCase();
+ if(t===1&&!d.g)return '<p class="hint">Сначала выберите NFT</p>';
+ let list=t===0?S.G:S.attrs[KINDS[t]]||[];
+ const names=list.map(x=>t===0?x.name:attrName(x));
+ let html=list.map((x,i)=>{const n=names[i];if(!n.toLowerCase().includes(q))return '';
+ let temp=clone(d);if(t===0){temp.g=x.name;temp.m=0;temp.b=0;temp.p=0}else temp[KEYS[t]]=i;
+ let image=t===0?`${API}/original/${apiName(assetGiftId(x))}.png?size=256`:t===1?`${API}/model/${apiName(d.g)}/${apiName(n)}.png?size=256`:t===3?`${API}/symbol/${apiName(d.g)}/${apiName(n)}.png?size=256`:'';
+ let anim=t===0?originalUrl(x):t===1?`${API}/model/${apiName(d.g)}/${apiName(n)}.json`:'';
+ let rarity=x.rarity??(x.rarityPermille!=null?(x.rarityPermille/10).toFixed(1)+'%':'');
+ let visual='';
+ if(t===2){visual=`<div class="cd" style="${backdropStyle(x)}"><span class="backdrop-sheen"></span></div>`}
+ else if(t===3){visual=`<div class="cd">${image?`<img src="${image}" alt="${esc(n)}" onerror="this.style.display='none';this.parentNode.insertAdjacentHTML('beforeend','<span class=em>✦</span>')">`:'<span class="em">✦</span>'}</div>`}
+ else {visual=`<div class="cd">${anim?`<div class="lottie-wrap"><img class="static-fallback" src="${image}" alt="${esc(n)}" onerror="this.style.opacity=0"><div class="lottie" data-lottie="${esc(anim)}"></div></div>`:`<img src="${image}" alt="${esc(n)}" onerror="this.style.display='none';this.parentNode.insertAdjacentHTML('beforeend','<span class=em>🎁</span>')">`}</div>`}
+ const active=t===0?d.g===x.name:t===1?d.m===i:t===2?d.b===i:d.p===i;
+ return `<button class="t${active?' on':''}" data-kind="${t===2?'backdrop':t===3?'symbol':t===1?'model':'gift'}" data-a="pk" data-i="${i}">${visual}<span>${esc(n)}${rarity?`<br><small style="color:var(--mut)">${esc(rarity)}</small>`:''}</span></button>`;
+ }).join('');
+ return html||'<p class="hint">Ничего не найдено</p>';
+}
+function pick(){
+ const lens='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+ return `<div class="top">${avatar(true)}<div class="pv">${pv()}</div><button class="btn p sm" data-a="ok">сохранить</button></div><div class="chips">${TABS.map((n,i)=>`<button class="chip${S.t===i?' on':''}" data-a="tb" data-i="${i}">${n}</button>`).join('')}</div><div class="panel"><div class="ph">${S.sr?`<input id="q" placeholder="Поиск названия" value="${esc(S.q)}">`:''}<button class="ic" data-a="sr" aria-label="Поиск">${lens}</button><button class="ic" data-a="reload" aria-label="Обновить список">↻</button></div><div class="items" id="it">${items()}</div></div><div class="hint">Оригинальные Telegram Lottie-анимации и атрибуты загружаются из Gift Changes API; статичные PNG-превью не двигаются.</div>`;
+}
+
+function hydrateLotties(root){
+  if(!window.lottie)return;
+  (root||document).querySelectorAll('.lottie[data-lottie]:not([data-hover-ready])').forEach(el=>{
+    el.dataset.hoverReady='1';
+    const wrap=el.closest('.lottie-wrap');
+    // .em and the picker preview may have pointer-events:none; bind hover to the visible card.
+    const hoverTarget=el.closest('.cell, .t') || wrap;
+    if(!wrap || !hoverTarget)return;
+
+    hoverTarget.addEventListener('pointerenter',()=>{
+      if(el.dataset.started)return;
+      el.dataset.started='1';
+      try{
+        const anim=window.lottie.loadAnimation({
+          container:el,
+          renderer:'svg',
+          loop:false,
+          autoplay:false,
+          path:el.dataset.lottie,
+   
